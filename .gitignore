@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+chroma_db/
+node_modules/
+dist/
+CLAUDE.md
+.python-version
+test.ipynb
+.ipynb_checkpoints/
