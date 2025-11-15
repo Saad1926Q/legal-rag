@@ -119,11 +119,11 @@ Available tools:
             tool_args = tool_call["args"]
 
             if tool_name == "search_statutes":
-                retrieved_docs["statutes"] = retrieve_statutes(tool_args["query"], k=10)
+                retrieved_docs["statutes"] = retrieve_statutes(tool_args["query"], k=5)
             elif tool_name == "search_cases":
-                retrieved_docs["cases"] = retrieve_cases(tool_args["query"], k=10)
+                retrieved_docs["cases"] = retrieve_cases(tool_args["query"], k=5)
             elif tool_name == "search_regulations":
-                retrieved_docs["regulations"] = retrieve_regulations(tool_args["query"], k=10)
+                retrieved_docs["regulations"] = retrieve_regulations(tool_args["query"], k=5)
 
         state["retrieved_docs"] = retrieved_docs
     else:
