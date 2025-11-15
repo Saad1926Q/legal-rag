@@ -1,10 +1,12 @@
 import streamlit as st
 import os
 import sys
+from pathlib import Path
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-from src.agents.orchestrator import run_query
+from dotenv import load_dotenv
+load_dotenv()
 
 st.set_page_config(
     page_title="Legal RAG",
@@ -12,6 +14,25 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+CHROMA_PATH = os.getenv("CHROMA_PATH", "./chroma_db")
+
+if not Path(CHROMA_PATH).exists():
+    try:
+        from src.ingestion.loader import load_and_chunk_all_documents
+        from src.ingestion.vectorstore import build_vectorstore
+
+        with st.spinner("🔨 Building vector database ... This may take a few minutes."):
+            all_chunked_docs = load_and_chunk_all_documents()
+            build_vectorstore(all_chunked_docs)
+
+        st.success("✅ Vector database built successfully!")
+
+    except Exception as e:
+        st.error(f"❌ Error building vector database: {e}")
+        st.stop()
+
+from src.agents.orchestrator import run_query
 
 st.title(" Criminal Law Research Assistant")
 st.markdown("""
