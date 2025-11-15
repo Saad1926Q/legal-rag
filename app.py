@@ -7,12 +7,13 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 from src.agents.orchestrator import run_query
 
 st.set_page_config(
-    page_title="Criminal Law RAG Assistant",
+    page_title="Legal RAG",
     page_icon="⚖️",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-st.title("⚖️ Criminal Law Research Assistant")
+st.title(" Criminal Law Research Assistant")
 st.markdown("""
 Ask questions about Indian Criminal Law including:
 - **IPC** (Indian Penal Code)
@@ -50,17 +51,26 @@ if prompt := st.chat_input("Ask a legal question..."):
                 st.session_state.messages.append({"role": "assistant", "content": error_msg})
 
 with st.sidebar:
-    st.header("About")
-    st.info("""
-    This assistant uses RAG (Retrieval Augmented Generation) to answer questions about Indian Criminal Law.
+    st.markdown("## :material/gavel: About")
 
-    It searches through:
-    - Statutes (IPC, CrPC, Evidence Act)
-    - Case Law & Judgments
-    - Government Regulations
+    with st.container(border=True):
+        st.markdown("### Multi-Agent RAG System")
+        st.markdown("""
+        This assistant uses a **sophisticated multi-agent architecture** to answer questions about Indian Criminal Law.
+        """)
 
-    """)
+    with st.container(border=True):
+        st.markdown("### :material/library_books: Knowledge Base")
+        st.markdown("""
+        - **Statutes** - IPC, CrPC, Evidence Act, POCSO, SC/ST Act
+        - **Case Law** - Landmark Supreme Court judgments
+        - **Regulations** - Prison Manual, Police Act
+        """)
 
-    if st.button("Clear Chat History"):
-        st.session_state.messages = []
-        st.rerun()
+    with st.container(border=True):
+        st.markdown("### :material/settings: Actions")
+        if st.button("🗑️ Clear Chat History", use_container_width=True):
+            st.session_state.messages = []
+            st.rerun()
+
+    st.caption("Powered by LangChain, Groq & ChromaDB")

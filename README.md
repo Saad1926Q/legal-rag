@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-So I am implementing a multi-agent RAG system focused on Indian Criminal Law. The system uses multiple AI agents that work together to retrieve relevant legal information and generate accurate responses with proper citations.
+So I have implemented a multi-agent RAG system focused on Indian Criminal Law. The system uses multiple AI agents that work together to retrieve relevant legal information and generate accurate responses with proper citations.
 
 ## Documents
 
@@ -26,15 +26,93 @@ The documents I have added are organized into three categories:
 1. Model Prison Manual for the Superintendence and Management of Prisons in India
 2. The Model Police Act, 2006
 
-## Corpus Statistics
-- Total documents: 13
-- Total pages processed: 1,359
-- Chunks indexed: 5,477
-- Vector database size: 41MB
+## Architecture
+
+![Multi-Agent Architecture](fac34ee7-9e90-42c1-a3b1-d74098290c31.jpg)
+
+So I’ve implemented a multi-agent RAG system for Criminal Law. 
+
+The workflow goes like this:
+
+### *1. Retrieval Agent*
+This is the first agent everything goes through.
+
+- If the user’s message is just a greeting → reply directly  
+- If the question is not related to criminal law → it politely declines  
+- If the question is about criminal law → it retrieves relevant documents  
+
+The Retrieval Agent can call 3 tools:
+- search_statutes() → searches IPC, CrPC, Evidence Act etc.  
+- search_cases() → searches case laws  
+- search_regulations() → searches rules and manuals  
+
+It returns the top relevant chunks (up to ~30 total).
+
+---
+
+### *2. Citation Agent*
+This agent takes the retrieved docs + the user question and filters out only the actually relevant citations. Not every retrieved chunk is useful, so this agent picks the proper ones and formats the citations.
+
+---
+
+### *3. Response Generation Agent*
+This is where the final legal answer is generated.  
+It takes:
+- the question  
+- the retrieved docs  
+- the formatted citations  
+
+and generates a proper legal response with clear reasoning and neatly inserted citations.
+
+---
+
+All of this is orchestrated using *LangGraph*, which keeps a shared state object flowing across agents.
+
+
+## Implementation
+
+So I used *LangChain* + *LangGraph* for the multi-agent setup, and *Streamlit* for the frontend.
+
+For vector search, I used *ChromaDB*. I’ve worked with FAISS before, but Chroma made more sense here because of easier persistence and simpler querying.
+
+I’m using *Groq’s API* (llama-3.1-8b-instant) for the LLM and  
+sentence-transformers/all-MiniLM-L6-v2 for embeddings.
+
+### *LangGraph Workflow*
+
+LangGraph uses nodes + edges:
+
+*Nodes (agents):*
+- retrieval_agent  
+- citations  
+- response_generation  
+
+*Edges:*
+- Retrieval → (if docs found) → Citations  
+- Citations → Response  
+- Response → END  
+- If no docs needed → Retrieval → END  
+
+*Shared State Object:*
+
+```python
+{
+    "question": str,
+    "messages": list,
+    "retrieved_docs": dict,
+    "citations": str,
+    "final_answer": str
+}
+
+```
+
+Why Streamlit?
+
+I could’ve used React + FastAPI as well, but deploying the backend on free-tier hosting makes the application slow most of the time. Streamlit just makes deployment smooth and handles both frontend + backend in one place.
 
 ## Running the Application
 
-### Streamlit UI (Recommended)
+### Streamlit UI 
 ```bash
 # Activate virtual environment
 source .venv/bin/activate
@@ -43,13 +121,3 @@ source .venv/bin/activate
 streamlit run app.py
 ```
 
-The app will open in your browser at `http://localhost:8501`
-
-### CLI Testing
-```bash
-# Activate virtual environment
-source .venv/bin/activate
-
-# Run the retrieval agent directly
-python src/agents/retrieval_agent.py
-```
