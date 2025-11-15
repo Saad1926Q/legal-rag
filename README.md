@@ -31,3 +31,25 @@ The documents I have added are organized into three categories:
 - Total pages processed: 1,359
 - Chunks indexed: 5,477
 - Vector database size: 41MB
+
+## Running the Application
+
+### Streamlit UI (Recommended)
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Run the Streamlit app
+streamlit run app.py
+```
+
+The app will open in your browser at `http://localhost:8501`
+
+### CLI Testing
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Run the retrieval agent directly
+python src/agents/retrieval_agent.py
+```
